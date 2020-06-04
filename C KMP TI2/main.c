@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #define getName(var) #var		//Variable name
 #define defaultSize 30			//Default string size for KMP string
 #define newline printf("\n")	//New line :)
@@ -14,15 +15,26 @@ void KMP_Setup(char search_Pattern[], int length_Pattern, int pi_Table[])
 
 	for (int i = 1; i < length_Pattern; i++)
 	{
-		while ((pi_Counter > 0) && (search_Pattern[i] != search_Pattern[pi_Counter]))	//Check found matches for potential match 
+		bool match = search_Pattern[i] == search_Pattern[pi_Counter];
+
+		switch (match)
 		{
-			pi_Counter = pi_Table[pi_Counter];
+		case true:				//Match
+			pi_Counter += 1;
+			break;
+		case false:				//Missmatch
+			//Check PI-Table whether we find a match from earlier entries or not
+			//If so, then match will be set to true. Otherwise it's a utter missmatch => 0
+			while (pi_Counter > 0 && match == false)	
+			{
+				pi_Counter = pi_Table[pi_Counter];
+				match = search_Pattern[i] == search_Pattern[pi_Counter];
+			}
+			if (match == true)
+				pi_Counter += 1;
+			break;
 		}
-		if (search_Pattern[i] == search_Pattern[pi_Counter])
-		{
-			pi_Counter += 1;	//Increase pi table index counter if there's a match
-		}
-		pi_Table[i + 1] = pi_Counter;
+		pi_Table[i + 1] = pi_Counter;	//Enter entry number into the corresponding table slot
 	}
 
 	printf("\n%s:\t%2s\n", getName(search_Pattern), search_Pattern);
