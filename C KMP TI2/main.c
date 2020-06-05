@@ -67,6 +67,8 @@ void KMP_Search(char search_Pattern[], int length_Pattern, char search_String[],
 				j = pi_Table[j];
 				match = search_String[i] == search_Pattern[j];
 			}
+			if (match)
+				j += 1;
 			break;
 		}
 		//Reached the end?
@@ -79,8 +81,24 @@ void KMP_Search(char search_Pattern[], int length_Pattern, char search_String[],
 	}
 }
 
+void Naive(char search_Pattern[], char search_String[])
+{
+	int i, j;
+	for (i = 0; search_String[i] != 0; i++)
+	{
+		for (j = 0; search_String[i + j] == search_Pattern[j]; j++)
+		{
+			if (search_Pattern[j + 1] == 0)
+			{
+				printf("Match found at position: %i", i), newline;
+			}
+		}
+	}
+}
+
 int main(void)
 {
+	Naive("acact", "acacgacgacacact");
 	double time_spent[2];
 	clock_t begin, end;
 
