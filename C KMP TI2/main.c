@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 #define getName(var) #var		//Variable name
 #define defaultSize 30			//Default string size for KMP string
 #define newline printf("\n")	//New line :)
@@ -46,13 +47,43 @@ void KMP_Setup(char search_Pattern[], int length_Pattern, int pi_Table[])
 	newline;
 }
 
-void KMP_Search(char search_pattern[], int length_Pattern, char search_String[], int length_String, int pi_Table[])
+void KMP_Search(char search_Pattern[], int length_Pattern, char search_String[], int length_String, int pi_Table[])
 {
+	int j = 0;					//PI-Table(pattern) counter
 
+	for (int i = 0; i < length_String; ++i)
+	{
+		bool match = search_String[i] == search_Pattern[j];
+
+		switch (match)
+		{
+		case true:				//Match
+			if (match == true)				
+						j += 1;
+			break;
+		case false:				//Missmatch
+			while (j > 0 && match == false)	//Missmatch
+			{
+				j = pi_Table[j];
+				match = search_String[i] == search_Pattern[j];
+			}
+			break;
+		}
+		//Reached the end?
+		if (j == length_Pattern)
+		{
+			printf("%s\n", search_String);
+			printf("%*s%s\n", i - (j - 1), "", search_Pattern);
+			j = pi_Table[j];
+		}
+	}
 }
 
 int main(void)
 {
+	double time_spent[2];
+	clock_t begin, end;
+
 	char search_Pattern[defaultSize];
 	int length_Pattern;					//Pattern string length
 	char search_String[defaultSize];	
@@ -73,8 +104,20 @@ int main(void)
 	printf("%s:\t%s", getName(search_String), search_String), newline;
 	printf("%s:\t%s", getName(search_Pattern), search_Pattern), newline;
 
-	KMP_Setup(search_Pattern, length_Pattern, pi_Table);
-	KMP_Search(search_Pattern, length_Pattern, search_String, length_String, pi_Table);
+	begin = clock();
+	KMP_Setup(search_Pattern, length_Pattern, pi_Table), newline;
+	_sleep(3);
+	end = clock();
+	time_spent[0] = (double)(end - begin) / CLOCKS_PER_SEC;
+
+	begin = clock();
+	KMP_Search(search_Pattern, length_Pattern, search_String, length_String, pi_Table), newline;
+	_sleep(3);
+	end = clock();
+	time_spent[1] = (double)(end - begin) / CLOCKS_PER_SEC;
+	
+	printf("Time elapsed during %s is %.*f ms.", getName(KMP_Setup), 2, time_spent[0]*1000), newline;
+	printf("Time elapsed during %s is %.*f ms.", getName(KMP_Search), 2, time_spent[1]*1000), newline;
 
 	free(pi_Table);
 
